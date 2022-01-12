@@ -41,7 +41,33 @@ class MyHomePage extends StatelessWidget {
           Column(
             children: transactions
                 .map((tx) => Card(
-                      child: Text(tx.title),
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                              color: Colors.purple,
+                              width: 2,
+                            )),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              tx.amount.toString(),
+                              style: const TextStyle(
+                                  color: Colors.purple,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Text(tx.title),
+                              Text(tx.date.toString()),
+                            ],
+                          )
+                        ],
+                      ),
                     ))
                 .toList(),
           )
