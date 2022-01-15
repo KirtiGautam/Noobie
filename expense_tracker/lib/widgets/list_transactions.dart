@@ -10,50 +10,54 @@ class ListTransactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: transactions
-          .map((tx) => Card(
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                        color: Colors.purple,
+    return Container(
+      height: 400,
+      child: ListView.builder(
+          itemCount: transactions.length,
+          itemBuilder: (ctx, index) {
+            return Card(
+              child: Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).primaryColorDark,
                         width: 2,
-                      )),
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      padding: const EdgeInsets.all(10),
-                      child: Text(
-                        tx.amount.toString(),
-                        style: const TextStyle(
-                            color: Colors.purple,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tx.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      '₹${transactions[index].amount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColorDark,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        transactions[index].title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                        Text(
-                          DateFormat.yMMMd().format(tx.date),
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ),
+                      ),
+                      Text(
+                        DateFormat.yMMMd().format(transactions[index].date),
+                        style: const TextStyle(
+                          color: Colors.grey,
                         ),
-                      ],
-                    )
-                  ],
-                ),
-              ))
-          .toList(),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            );
+          }),
     );
   }
 }
