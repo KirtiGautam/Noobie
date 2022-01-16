@@ -1,3 +1,4 @@
+import 'package:expense_tracker/widgets/chart.dart';
 import 'package:flutter/material.dart';
 
 import './widgets/input_transactions.dart';
@@ -28,17 +29,31 @@ class _MyHomePageState extends State<MyHomePage> {
     Transaction(id: 't2', title: 'Books', amount: 96.3, date: DateTime.now()),
   ];
 
-  void _addNewTx(String title, double amount) {
+  List<Transaction> get _recentTx => _userTransactions
+      .where(
+        (tx) =>
+            tx.date.isAfter(DateTime.now().subtract(const Duration(days: 7))),
+      )
+      .toList();
+
+  void _addNewTx(String title, double amount, DateTime chosenDate) {
     final newTx = Transaction(
-        amount: amount,
-        title: title,
-        date: DateTime.now(),
-        id: DateTime.now().toString());
+      amount: amount,
+      title: title,
+      date: chosenDate,
+      id: DateTime.now().toString(),
+    );
 
     setState(() {
       _userTransactions.add(newTx);
     });
   }
+
+  void _deleteTx(String id) => setState(
+        () => _userTransactions.removeWhere(
+          (tx) => id == tx.id,
+        ),
+      );
 
   void _showTxModal(BuildContext ctx) {
     showModalBottomSheet(
@@ -69,15 +84,12 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           Container(
             width: double.infinity,
-            child: const Card(
-              child: Text(
-                'Chart',
-              ),
-              elevation: 4,
-            ),
+            child: Chart(_recentTx),
           ),
-          // InputTransaction(_addNewTx),
-          ListTransactions(transactions: _userTransactions),
+          ListTransactions(
+            _userTransactions,
+            _deleteTx,
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
