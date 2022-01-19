@@ -2,7 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:meals/dummy_data.dart';
 import 'package:meals/models/meal.dart';
 
-class MealItemScreen extends StatelessWidget {
+class MealItemScreen extends StatefulWidget {
+  final Function toggleFavorite;
+  final Function isFavorite;
+
+  MealItemScreen(this.toggleFavorite, this.isFavorite);
+
+  @override
+  State<MealItemScreen> createState() => _MealItemScreenState();
+}
+
+class _MealItemScreenState extends State<MealItemScreen> {
   Widget buildTitle(String text) => Container(
         margin: const EdgeInsets.symmetric(vertical: 10),
         child: Text(
@@ -67,23 +77,31 @@ class MealItemScreen extends StatelessWidget {
               ),
             ),
             buildTitle('Steps'),
-            buildContainer(ListView.builder(
-              itemBuilder: (ctx, index) => Column(
-                children: [
-                  ListTile(
-                    leading: CircleAvatar(
-                      child: Text('# ${(index + 1)}'),
+            buildContainer(
+              ListView.builder(
+                itemBuilder: (ctx, index) => Column(
+                  children: [
+                    ListTile(
+                      leading: CircleAvatar(
+                        child: Text('# ${(index + 1)}'),
+                      ),
+                      title: Text(
+                        meal.steps[index],
+                      ),
                     ),
-                    title: Text(
-                      meal.steps[index],
-                    ),
-                  ),
-                  const Divider(),
-                ],
+                    const Divider(),
+                  ],
+                ),
+                itemCount: meal.steps.length,
               ),
-              itemCount: meal.steps.length,
-            ))
+            ),
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => widget.toggleFavorite(meal.id),
+        child: Icon(
+          widget.isFavorite(meal.id) ? Icons.star : Icons.star_border,
         ),
       ),
     );

@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:meals/models/meal.dart';
 
 import '../widgets/meals_item.dart';
 import '../dummy_data.dart';
 
-class Meals extends StatelessWidget {
-  // final String id;
-  // final String title;
+class Meals extends StatefulWidget {
+  final List<Meal> _meals;
 
-  // Meals(this.id, this.title);
+  Meals(this._meals);
 
+  @override
+  State<Meals> createState() => _MealsState();
+}
+
+class _MealsState extends State<Meals> {
   @override
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, String>;
     final title = args['title']!;
-    final meals = DUMMY_MEALS
+    final meals = widget._meals
         .where(
           (e) => e.categories.contains(args['id']),
         )

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:meals/models/meal.dart';
 
 import '../widgets/main_drawer.dart';
 import './categories.dart';
 import './favorites.dart';
 
 class Tabs extends StatelessWidget {
+  final List<Meal> favorites;
+  Tabs(this.favorites);
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -29,7 +33,7 @@ class Tabs extends StatelessWidget {
         body: TabBarView(
           children: [
             Categories(),
-            Favorites(),
+            Favorites(favorites),
           ],
         ),
       ),
