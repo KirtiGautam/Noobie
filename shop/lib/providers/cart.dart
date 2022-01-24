@@ -21,6 +21,12 @@ class Cart with ChangeNotifier {
 
   int get count => _items.length;
 
+  double get total {
+    var price = 0.0;
+    items.forEach((key, item) => price += item.price * item.quantity);
+    return price;
+  }
+
   void addItem(String id, String title, double price) {
     if (_items.containsKey(id)) {
       _items.update(
@@ -43,6 +49,16 @@ class Cart with ChangeNotifier {
         ),
       );
     }
+    notifyListeners();
+  }
+
+  void removeItem(String id) {
+    _items.remove(id);
+    notifyListeners();
+  }
+
+  void clear() {
+    _items = {};
     notifyListeners();
   }
 }

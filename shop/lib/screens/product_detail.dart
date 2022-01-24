@@ -5,6 +5,7 @@ import '../providers/products.dart';
 
 class ProductDetail extends StatelessWidget {
   static const routeName = 'product-detail';
+
   @override
   Widget build(BuildContext context) {
     final String id = ModalRoute.of(context)!.settings.arguments as String;
@@ -16,8 +17,40 @@ class ProductDetail extends StatelessWidget {
       appBar: AppBar(
         title: Text(product.title),
       ),
-      body: const Center(
-        child: Text('Detail Screen'),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 300,
+              width: double.infinity,
+              child: Image.network(
+                product.imageURL,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text(
+              '₹${product.price}',
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: double.infinity,
+              child: Text(
+                product.description,
+                textAlign: TextAlign.center,
+                softWrap: true,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop/providers/cart.dart';
-import 'package:shop/widgets/badge.dart';
 
-import '../providers/products.dart';
+import '../providers/cart.dart';
+import '../screens/cart_detail.dart';
+import '../widgets/badge.dart';
 import '../widgets/products_grid.dart';
+import '../widgets/app_drawer.dart';
 
 enum FavoriteFilterOption {
   all,
@@ -47,11 +48,14 @@ class _ProductOverviewState extends State<ProductOverview> {
             ),
             child: IconButton(
               icon: const Icon(Icons.shopping_cart),
-              onPressed: () {},
+              onPressed: () => Navigator.of(context).pushNamed(
+                CartDetail.routeName,
+              ),
             ),
           )
         ],
       ),
+      drawer: AppDrawer(),
       body: ProductsGrid(_showFavorites),
     );
   }
