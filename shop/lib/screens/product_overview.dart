@@ -14,6 +14,7 @@ enum FavoriteFilterOption {
 }
 
 class ProductOverview extends StatefulWidget {
+  static const routeName = '/';
   @override
   State<ProductOverview> createState() => _ProductOverviewState();
 }

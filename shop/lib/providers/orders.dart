@@ -21,12 +21,14 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
-
+  final String? authToken;
+  final String? userID;
+  Orders(this.authToken, this.userID, this._orders);
   List<OrderItem> get orders => [..._orders];
 
   Future<void> fetchAndSetProducts() {
     final uri = Uri.parse(
-      '$URL/orders.json',
+      '$URL/orders/$userID.json?auth=$authToken',
     );
     return http.get(uri).then((resp) {
       final data = json.decode(resp.body) as Map<String, dynamic>;
@@ -53,7 +55,7 @@ class Orders with ChangeNotifier {
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) {
     final uri = Uri.parse(
-      '$URL/orders.json',
+      '$URL/orders/$userID.json?auth=$authToken',
     );
     final timestamp = DateTime.now();
     return http

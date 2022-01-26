@@ -22,20 +22,16 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  Future<void> toggleFavorite() {
+  Future<void> toggleFavorite(String authToken, String userID) {
     final uri = Uri.parse(
-      '$URL/products/$id.json',
+      '$URL/userFavorites/$userID/$id.json?auth=$authToken',
     );
 
     isFavorite = !isFavorite;
     notifyListeners();
-    return http.patch(
+    return http.put(
       uri,
-      body: json.encode(
-        {
-          'isFavorite': isFavorite,
-        },
-      ),
+      body: json.encode(isFavorite),
     );
   }
 }

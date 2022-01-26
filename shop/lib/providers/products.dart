@@ -8,6 +8,10 @@ import './product.dart';
 
 class Products with ChangeNotifier {
   final uri = '$URL/products';
+  final String? authToken;
+  final String? userID;
+  Products(this.authToken, this.userID, this._products);
+
   List<Product> _products = [];
 
   List<Product> get items => [..._products];
@@ -17,36 +21,46 @@ class Products with ChangeNotifier {
   Product findById(String id) =>
       _products.firstWhere((product) => product.id == id);
 
-  Future<void> fetchAndSetProducts() {
-    return http.get(Uri.parse('$uri.json')).then((resp) {
-      final data = json.decode(resp.body) as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
-      data.forEach((key, value) {
-        loadedProducts.add(Product(
-          id: key,
-          title: value['title'],
-          description: value['description'],
-          imageURL: value['imageURL'],
-          price: value['price'],
-          isFavorite: value['isFavorite'],
-        ));
+  Future<void> fetchAndSetProducts([bool userFilter = false]) {
+    final filterString =
+        userFilter ? '&orderBy="creatorID"&equalTo="$userID"' : '';
+    return http
+        .get(Uri.parse('$uri.json?auth=$authToken$filterString'))
+        .then((resp) {
+      final favUri = Uri.parse(
+        '$URL/userFavorites/$userID.json?auth=$authToken',
+      );
+      return http.get(favUri).then((favs) {
+        final data = json.decode(resp.body) as Map<String, dynamic>;
+        final List<Product> loadedProducts = [];
+        final favProds = json.decode(favs.body);
+        data.forEach((key, value) {
+          loadedProducts.add(Product(
+            id: key,
+            title: value['title'],
+            description: value['description'],
+            imageURL: value['imageURL'],
+            price: value['price'],
+            isFavorite: (favProds == null) ? false : (favProds[key] ?? false),
+          ));
+        });
+        _products = loadedProducts;
+        notifyListeners();
       });
-      _products = loadedProducts;
-      notifyListeners();
     });
   }
 
   Future<void> addProduct(Product prod) {
     return http
         .post(
-      Uri.parse('$uri.json'),
+      Uri.parse('$uri.json?auth=$authToken'),
       body: json.encode(
         {
           'title': prod.title,
           'description': prod.description,
           'imageURL': prod.imageURL,
           'price': prod.price,
-          'isFavorite': prod.isFavorite,
+          'creatorID': userID,
         },
       ),
     )
@@ -69,7 +83,7 @@ class Products with ChangeNotifier {
       return http
           .patch(
         Uri.parse(
-          '$uri/${prod.id}.json',
+          '$uri/${prod.id}.json?auth=$authToken',
         ),
         body: json.encode(
           {
@@ -92,7 +106,7 @@ class Products with ChangeNotifier {
     return http
         .delete(
       Uri.parse(
-        '$uri/$id.json',
+        '$uri/$id.json?auth=$authToken',
       ),
     )
         .then((value) {
