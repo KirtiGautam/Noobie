@@ -103,6 +103,7 @@ class Auth with ChangeNotifier {
       _authTimer!.cancel();
       _authTimer = null;
     }
+    SharedPreferences.getInstance().then((value) => value.clear());
     notifyListeners();
   }
 
