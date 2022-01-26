@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/products.dart';
 import '../providers/cart.dart';
 import '../screens/cart_detail.dart';
 import '../widgets/badge.dart';
@@ -19,6 +20,20 @@ class ProductOverview extends StatefulWidget {
 
 class _ProductOverviewState extends State<ProductOverview> {
   var _showFavorites = false;
+  var _init = true;
+  var _isLoading = false;
+
+  @override
+  void didChangeDependencies() {
+    if (_init) {
+      setState(() => _isLoading = true);
+      Provider.of<Products>(context)
+          .fetchAndSetProducts()
+          .then((value) => (setState(() => _isLoading = false)));
+    }
+    _init = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +71,11 @@ class _ProductOverviewState extends State<ProductOverview> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductsGrid(_showFavorites),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showFavorites),
     );
   }
 }

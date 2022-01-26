@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+
+import '../env.dart';
 
 class Product with ChangeNotifier {
   final String id;
@@ -17,8 +22,20 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavorite() {
+  Future<void> toggleFavorite() {
+    final uri = Uri.parse(
+      '$URL/products/$id.json',
+    );
+
     isFavorite = !isFavorite;
     notifyListeners();
+    return http.patch(
+      uri,
+      body: json.encode(
+        {
+          'isFavorite': isFavorite,
+        },
+      ),
+    );
   }
 }

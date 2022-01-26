@@ -43,3 +43,6 @@ app.*.map.json
 # Android Studio will place build artifacts here
 android
 ios
+
+# Environment vars file
+env.dart

@@ -1,41 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'product.dart';
+import 'package:http/http.dart' as http;
+
+import '../env.dart';
+import './product.dart';
 
 class Products with ChangeNotifier {
-  List<Product> _products = [
-    Product(
-      id: 'p1',
-      title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!',
-      price: 29.99,
-      imageURL:
-          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    ),
-    Product(
-      id: 'p2',
-      title: 'Trousers',
-      description: 'A nice pair of trousers.',
-      price: 59.99,
-      imageURL:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-    ),
-    Product(
-      id: 'p3',
-      title: 'Yellow Scarf',
-      description: 'Warm and cozy - exactly what you need for the winter.',
-      price: 19.99,
-      imageURL:
-          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-    ),
-    Product(
-      id: 'p4',
-      title: 'A Pan',
-      description: 'Prepare any meal you want.',
-      price: 49.99,
-      imageURL:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
-  ];
+  final uri = '$URL/products';
+  List<Product> _products = [];
 
   List<Product> get items => [..._products];
   List<Product> get favoriteItems =>
@@ -44,28 +17,87 @@ class Products with ChangeNotifier {
   Product findById(String id) =>
       _products.firstWhere((product) => product.id == id);
 
-  void addProduct(Product prod) {
-    final product = Product(
-      id: DateTime.now().toString(),
-      title: prod.title,
-      description: prod.description,
-      imageURL: prod.imageURL,
-      price: prod.price,
-    );
-    _products.add(product);
-    notifyListeners();
+  Future<void> fetchAndSetProducts() {
+    return http.get(Uri.parse('$uri.json')).then((resp) {
+      final data = json.decode(resp.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+      data.forEach((key, value) {
+        loadedProducts.add(Product(
+          id: key,
+          title: value['title'],
+          description: value['description'],
+          imageURL: value['imageURL'],
+          price: value['price'],
+          isFavorite: value['isFavorite'],
+        ));
+      });
+      _products = loadedProducts;
+      notifyListeners();
+    });
   }
 
-  void editProduct(Product prod) {
+  Future<void> addProduct(Product prod) {
+    return http
+        .post(
+      Uri.parse('$uri.json'),
+      body: json.encode(
+        {
+          'title': prod.title,
+          'description': prod.description,
+          'imageURL': prod.imageURL,
+          'price': prod.price,
+          'isFavorite': prod.isFavorite,
+        },
+      ),
+    )
+        .then((value) {
+      final product = Product(
+        id: json.decode(value.body)['name'],
+        title: prod.title,
+        description: prod.description,
+        imageURL: prod.imageURL,
+        price: prod.price,
+      );
+      _products.add(product);
+      notifyListeners();
+    });
+  }
+
+  Future<void> editProduct(Product prod) {
     final prodIndex = _products.indexWhere((element) => prod.id == element.id);
     if (prodIndex >= 0) {
-      _products[prodIndex] = prod;
+      return http
+          .patch(
+        Uri.parse(
+          '$uri/${prod.id}.json',
+        ),
+        body: json.encode(
+          {
+            'title': prod.title,
+            'description': prod.description,
+            'imageURL': prod.imageURL,
+            'price': prod.price,
+          },
+        ),
+      )
+          .then((value) {
+        _products[prodIndex] = prod;
+        notifyListeners();
+      });
     }
-    notifyListeners();
+    return Future<void>(() {});
   }
 
-  void deleteProduct(String id) {
-    _products.removeWhere((element) => element.id == id);
-    notifyListeners();
+  Future<void> deleteProduct(String id) {
+    return http
+        .delete(
+      Uri.parse(
+        '$uri/$id.json',
+      ),
+    )
+        .then((value) {
+      _products.removeWhere((element) => element.id == id);
+      notifyListeners();
+    });
   }
 }

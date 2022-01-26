@@ -11,7 +11,6 @@ class CartDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
-    final items = cart.items.values.toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cart'),
@@ -41,40 +40,66 @@ class CartDetail extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<Orders>(
-                        context,
-                        listen: false,
-                      ).addOrder(
-                        items,
-                        cart.total,
-                      );
-                      cart.clear();
-                      
-                    },
-                    child: Text(
-                      'Order Now!',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
-                  )
+                  OrderButton(cart: cart)
                 ],
               ),
             ),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: items.length,
+              itemCount: cart.items.values.toList().length,
               itemBuilder: (_, index) => CartItem(
-                items[index].id,
+                cart.items.values.toList()[index].id,
                 cart.items.keys.toList()[index],
-                items[index].title,
-                items[index].quantity,
-                items[index].price,
+                cart.items.values.toList()[index].title,
+                cart.items.values.toList()[index].quantity,
+                cart.items.values.toList()[index].price,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key? key,
+    required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: (widget.cart.total <= 0 || _isLoading)
+          ? null
+          : () {
+              setState(() => _isLoading = true);
+              Provider.of<Orders>(
+                context,
+                listen: false,
+              )
+                  .addOrder(
+                widget.cart.items.values.toList(),
+                widget.cart.total,
+              )
+                  .then((value) {
+                setState(() => _isLoading = true);
+                widget.cart.clear();
+              });
+            },
+      child: Text(
+        'Order Now!',
+        style: TextStyle(color: Theme.of(context).primaryColor),
       ),
     );
   }
