@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:places/providers/places.dart';
 import 'package:provider/provider.dart';
 
+import '../models/place.dart';
+import '../providers/places.dart';
+import '../widgets/location_input.dart';
 import '../widgets/image_input.dart';
 
 class AddPlace extends StatefulWidget {
@@ -16,17 +18,24 @@ class AddPlace extends StatefulWidget {
 class _AddPlaceState extends State<AddPlace> {
   final _titleController = TextEditingController();
   File? _img;
+  Location? _loc;
 
   void _setImage(File img) => _img = img;
 
   void _savePlace() {
-    if (_img == null || _titleController.text.isEmpty) {
+    if (_img == null || _titleController.text.isEmpty || _loc == null) {
       return;
     }
     Provider.of<Places>(context, listen: false)
-        .addPlace(_titleController.text, _img);
+        .addPlace(_titleController.text, _img, _loc);
     Navigator.of(context).pop();
   }
+
+  void _selectPlace(double lat, double long) => _loc = Location(
+        latitude: lat,
+        longitude: long,
+        address: 'acvd',
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +60,10 @@ class _AddPlaceState extends State<AddPlace> {
                       height: 10,
                     ),
                     ImageInput(_setImage),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    LocationInput(_selectPlace),
                   ],
                 ),
               ),

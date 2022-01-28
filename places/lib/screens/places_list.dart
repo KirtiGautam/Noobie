@@ -20,23 +20,35 @@ class PlacesList extends StatelessWidget {
             ),
           ],
         ),
-        body: Consumer<Places>(
-          child: const Center(
-            child: Text('No places to show'),
-          ),
-          builder: (ctx, places, child) => (places.places.isEmpty)
-              ? child!
-              : ListView.builder(
-                  itemCount: places.places.length,
-                  itemBuilder: (ct, i) => ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: FileImage(
-                        places.places[i].image,
-                      ),
-                    ),
-                    title: Text(places.places[i].title),
-                    onTap: () {},
+        body: FutureBuilder(
+          future: Provider.of<Places>(
+            context,
+            listen: false,
+          ).fetchAndSetPlaces(),
+          builder: (ctx, snapshot) => snapshot.connectionState ==
+                  ConnectionState.waiting
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Consumer<Places>(
+                  child: const Center(
+                    child: Text('No places to show'),
                   ),
+                  builder: (ctx, places, child) => (places.places.isEmpty)
+                      ? child!
+                      : ListView.builder(
+                          itemCount: places.places.length,
+                          itemBuilder: (ct, i) => ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: FileImage(
+                                places.places[i].image,
+                              ),
+                            ),
+                            title: Text(places.places[i].title),
+                            subtitle: Text(places.places[i].location!.address),
+                            onTap: () {},
+                          ),
+                        ),
                 ),
         ),
       );
